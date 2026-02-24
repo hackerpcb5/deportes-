@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es" id="htmlRoot">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biblioteca – Escuela Superior Vocacional Pablo Colón Berdecia</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dark-mode-fix-v2.css?v=2">
+  <link rel="stylesheet" href="dropdown-fix.css">
+  <link rel="stylesheet" href="image-popup.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="translations.js"></script>
+  <style>
+    /* Fix dark mode para cards y elementos */
+    body.dark-mode .card,
+    body.dark-mode .resource-card,
+    body.dark-mode .catalog-search {
+      background: rgba(17, 24, 39, 0.95) !important;
+      border: 1px solid rgba(56, 189, 248, 0.2) !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+      color: #E5E7EB !important;
+    }
+
+    body.dark-mode .card h3,
+    body.dark-mode .resource-card h3,
+    body.dark-mode .catalog-search h3 {
+      color: #38BDF8 !important;
+    }
+
+    body.dark-mode .card p,
+    body.dark-mode .resource-card p,
+    body.dark-mode .catalog-search p {
+      color: #9CA3AF !important;
+    }
+
+    body.dark-mode .card:hover,
+    body.dark-mode .resource-card:hover {
+      border-color: #38BDF8 !important;
+      box-shadow: 0 8px 30px rgba(56, 189, 248, 0.3) !important;
+      transform: translateY(-5px) !important;
+    }
+
+    body.dark-mode .card-icon {
+      background: rgba(56, 189, 248, 0.1) !important;
+    }
+
+    body.dark-mode input,
+    body.dark-mode select,
+    body.dark-mode textarea {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border: 1px solid rgba(56, 189, 248, 0.2) !important;
+      color: #E5E7EB !important;
+    }
+
+    body.dark-mode input::placeholder {
+      color: #9CA3AF !important;
+    }
+  </style>
+  <style>
+    .catalog-search {
+      background: #f8f9fa;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      border: 1px solid #dee2e6;
+    }
+
+    .book-results {
+      display: grid;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .book-card {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Popup de selección de tema -->
+  <div id="themePopup" class="theme-popup">
+    <div class="theme-popup-content">
+      <h2 data-translate="🎨 Selecciona tu tema preferido">🎨 Selecciona tu tema preferido</h2>
+      <p data-translate="Elige cómo quieres ver el sitio web">Elige cómo quieres ver el sitio web</p>
+      <div class="theme-buttons">
+        <button class="theme-btn theme-btn-light" id="btnLightMode" data-translate="☀️ Modo Claro">
+          ☀️ Modo Claro
+        </button>
+        <button class="theme-btn theme-btn-dark" id="btnDarkMode" data-translate="🌙 Modo Oscuro">
+          🌙 Modo Oscuro
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Script inline para modo claro/oscuro
+    (function () {
+      function hidePopup() {
+        document.getElementById('themePopup').classList.add('hidden');
+      }
+
+      function setLightMode() {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('theme', 'light');
+        hidePopup();
+      }
+
+      function setDarkMode() {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark');
+        hidePopup();
+      }
+
+      function checkTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+          document.body.classList.add('dark-mode');
+          hidePopup();
+        } else if (savedTheme === 'light') {
+          hidePopup();
+        }
+      }
+
+      // Ejecutar inmediatamente
+      checkTheme();
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const btnLight = document.getElementById('btnLightMode');
+        const btnDark = document.getElementById('btnDarkMode');
+
+        if (btnLight) {
+          btnLight.addEventListener('click', setLightMode);
+        }
+        if (btnDark) {
+          btnDark.addEventListener('click', setDarkMode);
+        }
+      });
+    })();
+  </script>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="logo-area">
+        <img src="LOGO6.png" alt="Logo Escuela" class="logo-image">
+        <div class="logo-text">
+          <span class="logo-title" data-translate="Escuela Superior Vocacional">Escuela Superior Vocacional</span>
+          <span class="logo-subtitle">Pablo Colón Berdecia</span>
+        </div>
+      </div>
+
+      <!-- Hamburger Menu Button -->
+      <button class="hamburger-menu" id="hamburgerBtn" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <button class="menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html#inicio" data-translate="Inicio">Inicio</a></li>
+          <li><a href="index.html#servicios" data-translate="Servicios">Servicios</a></li>
+          <li><a href="index.html#contacto" data-translate="Contacto">Contacto</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Menú lateral hamburguesa -->
+  <div class="sidebar-menu" id="sidebarMenu">
+    <div class="sidebar-header">
+      <h3 data-translate="Menú">Menú</h3>
+      <button class="sidebar-close" id="closeSidebar">&times;</button>
+    </div>
+    <div class="sidebar-content">
+      <!-- Navegación Principal -->
+      <a href="index.html" class="sidebar-item sidebar-link">
+        <span class="sidebar-icon">🏠</span>
+        <span class="sidebar-text" data-translate="Inicio">Inicio</span>
+        <span class="sidebar-arrow">›</span>
+      </a>
+
+      <a href="quienes-somos.html" class="sidebar-item sidebar-link">
+        <span class="sidebar-icon">🏫</span>
+        <span class="sidebar-text" data-translate="Quiénes Somos">Quiénes Somos</span>
+        <span class="sidebar-arrow">›</span>
+      </a>
+
+      <!-- Servicios Digitales (Expandible) -->
+      <div class="sidebar-item" id="servicesToggle">
+        <span class="sidebar-icon">💻</span>
+        <span class="sidebar-text" data-translate="Servicios Digitales">Servicios Digitales</span>
+        <span class="sidebar-arrow">›</span>
+      </div>
+      <div class="theme-options" id="servicesOptions" style="display: none;">
+        <a href="matricula.html" class="theme-option">
+          <span>📝</span> Matrícula Online
+        </a>
+        <a href="solicitudes.html" class="theme-option">
+          <span>📄</span> Solicitud de Documentos
+        </a>
+        <a href="servicios-tecnicos.html" class="theme-option">
+          <span>🔧</span> Servicios Técnicos
+        </a>
+        <a href="enfermeria.html" class="theme-option">
+          <span>⚕️</span> Enfermería
+        </a>
+        <a href="orientacion.html" class="theme-option">
+          <span>🧠</span> Orientación
+        </a>
+        <a href="biblioteca.html" class="theme-option">
+          <span>📚</span> Biblioteca
+        </a>
+        <a href="comedor.html" class="theme-option">
+          <span>🍽️</span> Comedor
+        </a>
+        <a href="padres.html" class="theme-option">
+          <span>👨‍👩‍👧</span> Portal de Padres
+        </a>
+        <a href="seguridad.html" class="theme-option">
+          <span>🛡️</span> Seguridad
+        </a>
+        <a href="evidencia.html" class="theme-option">
+          <span>📊</span> Dashboard Evidencia
+        </a>
+      </div>
+
+      <a href="participacion-comunitaria.html" class="sidebar-item sidebar-link">
+        <span class="sidebar-icon">🎓</span>
+        <span class="sidebar-text" data-translate="Vida Estudiantil">Vida Estudiantil</span>
+        <span class="sidebar-arrow">›</span>
+      </a>
+
+      <a href="normas-reglamentos.html" class="sidebar-item sidebar-link">
+        <span class="sidebar-icon">📋</span>
+        <span class="sidebar-text" data-translate="Normas">Normas</span>
+        <span class="sidebar-arrow">›</span>
+      </a>
+
+      <!-- Separador -->
+      <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 1rem 0;"></div>
+
+      <!-- Cambiar Tema -->
+      <div class="sidebar-item" id="themeToggle">
+        <span class="sidebar-icon">🎨</span>
+        <span class="sidebar-text" data-translate="Cambiar Tema">Cambiar Tema</span>
+        <span class="sidebar-arrow">›</span>
+      </div>
+      <div class="theme-options" id="themeOptions" style="display: none;">
+        <button class="theme-option" id="selectLightMode" data-translate="Modo Claro">
+          <span>☀️</span> Modo Claro
+        </button>
+        <button class="theme-option" id="selectDarkMode" data-translate="Modo Oscuro">
+          <span>🌙</span> Modo Oscuro
+        </button>
+      </div>
+
+      <!-- Cambiar Idioma -->
+      <div class="sidebar-item" id="languageToggle">
+        <span class="sidebar-icon">🌐</span>
+        <span class="sidebar-text" data-translate="Cambiar Idioma">Cambiar Idioma</span>
+        <span class="sidebar-arrow">›</span>
+      </div>
+      <div class="theme-options" id="languageOptions" style="display: none;">
+        <button class="theme-option" id="selectSpanish" data-translate="Español">
+          <span>🇵🇷</span> Español
+        </button>
+        <button class="theme-option" id="selectEnglish" data-translate="English">
+          <span>🇺🇸</span> English
+        </button>
+      </div>
+
+      <!-- Separador -->
+      <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 1rem 0;"></div>
+
+      <!-- Dashboard Administrativo -->
+      <a href="admin.html" class="sidebar-item sidebar-link">
+        <span class="sidebar-icon">⚙️</span>
+        <span class="sidebar-text" data-translate="Dashboard Admin">Dashboard Admin</span>
+        <span class="sidebar-arrow">›</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Overlay para cerrar el menú -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+
+
+  <section class="hero" style="min-height: 350px; padding: 4rem 0;">
+    <div class="container">
+      <div class="section-header" style="margin-bottom: 0;">
+        <div style="font-size: 5rem; margin-bottom: 1rem;">📚</div>
+        <h1 style="color: #ffffff; font-size: 3rem;">Biblioteca Digital</h1>
+        <p style="color: rgba(255,255,255,0.95); font-size: 1.2rem;">Catálogo en línea y reservas</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+
+      <!-- CATÁLOGO EN LÍNEA -->
+      <div class="catalog-search">
+        <h2><i class="fas fa-search"></i> Catálogo en Línea</h2>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+          <input type="text" id="searchQuery" class="form-control" placeholder="Buscar por título, autor o materia...">
+          <button class="btn btn-primary" onclick="searchCatalog()">Buscar</button>
+        </div>
+
+        <div id="searchResults" class="book-results">
+          <!-- Resultados aquí -->
+          <p style="text-align: center; color: #999; margin-top: 20px;">Realiza una búsqueda para ver libros
+            disponibles.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Información general -->
+        <article class="card">
+          <div class="card-icon">📖</div>
+          <h3>Visión</h3>
+          <p>Crear una sociedad que tenga acceso a las bibliotecas para educarse e inspirarse...</p>
+        </article>
+
+        <!-- Recomendaciones IA -->
+        <article class="card accent-left">
+          <div class="card-icon">🤖</div>
+          <h3>Recomendaciones Inteligentes</h3>
+          <p>¿No sabes qué leer? Nuestra IA te sugiere:</p>
+          <ul id="aiBookRecommendations">
+            <li><em>Cargando sugerencias...</em></li>
+          </ul>
+        </article>
+      </div>
+
+      <!-- Galería de Fotos (Existing) -->
+      <div class="section-header" style="margin-top: 4rem;">
+        <h2 data-translate="📸 Galería de la Biblioteca">📸 Galería de la Biblioteca</h2>
+      </div>
+      <div class="grid-3" id="bibliotecaGallery" style="margin-top: 2rem;"></div>
+
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2026 Escuela Superior Vocacional Pablo Colón Berdecia.</p>
+    </div>
+  </footer>
+
+  <script src="js/services-manager.js"></script>
+  <script src="js/biblioteca.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>

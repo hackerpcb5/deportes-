@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Administrativo - PCB</title>
+  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="dark-mode-fix.css">
+  <link rel="stylesheet" href="image-popup.css">
+  <script src="js/crypto-utils.js"></script>
+  <script src="js/jwt-simple.js"></script>
+  <script src="js/auth-jwt.js"></script>
+</head>
+
+<body>
+  <script>
+    // Proteger página de admin con JWT
+    (async function () {
+      const isAuth = await AuthJWT.isAuthenticated();
+      if (!isAuth) {
+        window.location.href = 'login.html';
+      }
+    })();
+  </script>
+
+  <div class="admin-container">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-logo">
+        <img src="LOGO6.png" alt="Logo PCB">
+        <h2>Panel Admin</h2>
+      </div>
+      <nav class="admin-nav">
+        <button class="nav-btn active" data-section="biblioteca">
+          📚 Biblioteca
+        </button>
+        <button class="nav-btn" data-section="comedor">
+          🍽️ Comedor
+        </button>
+        <button class="nav-btn" data-section="promociones">
+          📢 Promociones
+        </button>
+        <button class="nav-btn" data-section="avisos">
+          📋 Avisos
+        </button>
+        <button class="nav-btn" data-section="deportes">
+          🏆 Deportes
+        </button>
+        <button class="nav-btn" data-section="bot">
+          🔔 Bot de Avisos
+        </button>
+      </nav>
+      <div class="admin-footer">
+        <a href="index.html" class="btn-back">← Volver al sitio</a>
+        <button onclick="AuthJWT.logout()" class="btn-back"
+          style="margin-top: 0.5rem; background: rgba(231, 76, 60, 0.2); border: none; cursor: pointer; width: 100%;">
+          🚪 Cerrar Sesión
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1 id="sectionTitle">Gestión de Biblioteca</h1>
+        <div class="admin-actions">
+          <button class="btn-secondary" id="btnExportData" title="Exportar datos a JSON">
+            💾 Exportar Datos
+          </button>
+          <button class="btn-primary" id="btnEditMenu" style="display: none;">
+            📝 Editar Menú
+          </button>
+          <button class="btn-primary" id="btnAddImage">
+            ➕ Añadir Imagen
+          </button>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="admin-content">
+        <!-- Menu Editor (only for comedor section) -->
+        <div class="menu-editor-section" id="menuEditorSection" style="display: none;">
+          <div class="upload-card">
+            <h3>📝 Editar Menú del Día</h3>
+            <form id="menuForm">
+              <div class="menu-section">
+                <h4>🌅 Desayuno</h4>
+                <div class="form-group">
+                  <label>Items del desayuno (uno por línea):</label>
+                  <textarea id="desayunoItems" rows="5"
+                    placeholder="Ej:&#10;Revoltillo&#10;Peras Frescas&#10;Melocotones&#10;Leche"></textarea>
+                </div>
+              </div>
+
+              <div class="menu-section">
+                <h4>🍽️ Almuerzo</h4>
+                <div class="form-group">
+                  <label>Items del almuerzo (uno por línea):</label>
+                  <textarea id="almuerzoItems" rows="6"
+                    placeholder="Ej:&#10;Arroz&#10;Habichuelas guisadas&#10;Carne de Cerdo&#10;Zanahoria&#10;Manzana&#10;Coctel de fruta"></textarea>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">💾 Guardar Menú</button>
+                <button type="button" class="btn-secondary" id="btnCancelMenu">Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Upload Form -->
+        <div class="upload-section" id="uploadSection" style="display: none;">
+          <div class="upload-card">
+            <h3>Subir Nueva Imagen</h3>
+
+            <!-- Tabs para elegir método -->
+            <div class="upload-tabs">
+              <button type="button" class="tab-btn active" data-tab="file">📁 Subir Archivo</button>
+              <button type="button" class="tab-btn" data-tab="url">🔗 URL Externa</button>
+            </div>
+
+            <form id="uploadForm">
+              <!-- Tab: Subir Archivo -->
+              <div class="tab-content active" id="tabFile">
+                <div class="form-group">
+                  <label for="imageFile">Seleccionar Imagen:</label>
+                  <input type="file" id="imageFile" accept="image/*">
+                  <div class="file-preview" id="filePreview"></div>
+                  <p class="help-text">⚠️ Nota: Para usar en GitHub, debes copiar manualmente la imagen a la carpeta
+                    correspondiente o usar URL externa.</p>
+                </div>
+              </div>
+
+              <!-- Tab: URL Externa -->
+              <div class="tab-content" id="tabUrl" style="display: none;">
+                <div class="form-group">
+                  <label for="imageUrl">URL de la Imagen:</label>
+                  <input type="url" id="imageUrl" placeholder="https://ejemplo.com/imagen.jpg">
+                  <p class="help-text">
+                    💡 Puedes usar servicios como:
+                    <br>• <a href="https://imgur.com" target="_blank">Imgur</a> (recomendado)
+                    <br>• <a href="https://postimages.org" target="_blank">PostImages</a>
+                    <br>• Google Drive (asegúrate de que sea público)
+                  </p>
+                  <div class="url-preview" id="urlPreview"></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="imageTitle">Título (opcional):</label>
+                <input type="text" id="imageTitle" placeholder="Ej: Inscripción Abierta 2026">
+              </div>
+              <div class="form-group">
+                <label for="imageDescription">Descripción (opcional):</label>
+                <textarea id="imageDescription" rows="3"
+                  placeholder="Ej: ¡Únete a nuestra familia educativa!"></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">Guardar Imagen</button>
+                <button type="button" class="btn-secondary" id="btnCancelUpload">Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Deportes Editor (only for deportes section) -->
+        <div class="deportes-editor-section" id="deportesEditorSection" style="display: none;">
+          <div class="upload-card">
+            <h3>🏆 Gestión de Deportes</h3>
+            <p style="margin-bottom: 1.5rem; color: #7f8c8d;">
+              Administra las competencias, resultados, directorio de deportes y staff técnico.
+            </p>
+
+            <!-- Tabs para diferentes secciones de deportes -->
+            <div class="deportes-tabs">
+              <button type="button" class="deportes-tab-btn active" data-tab="competencias">📅 Competencias</button>
+              <button type="button" class="deportes-tab-btn" data-tab="resultados">🏆 Resultados</button>
+              <button type="button" class="deportes-tab-btn" data-tab="directorio">📋 Directorio</button>
+              <button type="button" class="deportes-tab-btn" data-tab="staff">👥 Staff</button>
+            </div>
+
+            <!-- Competencias Tab -->
+            <div class="deportes-tab-content active" id="tabCompetencias">
+              <h4>Próximas Competencias</h4>
+              <div id="competenciasList">
+                <!-- Competencias will be loaded here -->
+              </div>
+              <button type="button" class="btn-secondary" id="btnAddCompetencia" style="margin-top: 1rem;">➕ Añadir Competencia</button>
+            </div>
+
+            <!-- Resultados Tab -->
+            <div class="deportes-tab-content" id="tabResultados" style="display: none;">
+              <h4>Últimos Resultados</h4>
+              <div id="resultadosList">
+                <!-- Resultados will be loaded here -->
+              </div>
+              <button type="button" class="btn-secondary" id="btnAddResultado" style="margin-top: 1rem;">➕ Añadir Resultado</button>
+            </div>
+
+            <!-- Directorio Tab -->
+            <div class="deportes-tab-content" id="tabDirectorio" style="display: none;">
+              <h4>Directorio de Deportes</h4>
+              <div id="directorioList">
+                <!-- Deportes will be loaded here -->
+              </div>
+              <button type="button" class="btn-secondary" id="btnAddDeporte" style="margin-top: 1rem;">➕ Añadir Deporte</button>
+            </div>
+
+            <!-- Staff Tab -->
+            <div class="deportes-tab-content" id="tabStaff" style="display: none;">
+              <h4>Staff Técnico</h4>
+              <div id="staffList">
+                <!-- Staff will be loaded here -->
+              </div>
+              <button type="button" class="btn-secondary" id="btnAddStaff" style="margin-top: 1rem;">➕ Añadir Miembro</button>
+            </div>
+
+            <!-- Save Changes Button -->
+            <div class="form-actions" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--border-soft, #e0e0e0);">
+              <button type="button" class="btn-primary" id="btnSaveDeportes" style="font-size: 1.1rem; padding: 0.8rem 2rem;">
+                💾 Guardar Cambios en Deportes
+              </button>
+              <span id="deportesSaveStatus" style="margin-left: 1rem; color: #27ae60; font-weight: 600; display: none;">
+                ✅ ¡Cambios guardados! Se verán reflejados en la página de Deportes.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bot Configuration (only for bot section) -->
+        <div class="bot-config-section" id="botConfigSection" style="display: none;">
+          <div class="upload-card">
+            <h3>🔔 Configuración del Bot de Avisos</h3>
+            <p style="margin-bottom: 1.5rem; color: #7f8c8d;">
+              Selecciona los avisos y promociones que quieres mostrar en el bot flotante del sitio web.
+            </p>
+            <div id="botItemsList">
+              <!-- Items will be loaded here -->
+            </div>
+            <div class="form-actions" style="margin-top: 1.5rem;">
+              <button type="button" class="btn-primary" id="btnSaveBotConfig">💾 Guardar Configuración</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gallery Grid -->
+        <div class="gallery-grid" id="galleryGrid">
+          <!-- Images will be loaded here dynamically -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="empty-icon">📸</div>
+          <h3>No hay imágenes</h3>
+          <p>Añade tu primera imagen usando el botón de arriba</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal" id="deleteModal">
+    <div class="modal-content">
+      <h3>⚠️ Confirmar Eliminación</h3>
+      <p>¿Estás seguro de que deseas eliminar esta imagen?</p>
+      <p class="modal-warning">Esta acción no se puede deshacer.</p>
+      <div class="modal-actions">
+        <button class="btn-danger" id="btnConfirmDelete">Eliminar</button>
+        <button class="btn-secondary" id="btnCancelDelete">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Deportes Custom Modal ===== -->
+  <div class="deportes-modal-overlay" id="deportesModalOverlay">
+    <div class="deportes-modal" id="deportesModal">
+      <div class="deportes-modal-header">
+        <h3 id="deportesModalTitle">Título</h3>
+        <button class="deportes-modal-close" id="deportesModalClose" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="deportes-modal-body" id="deportesModalBody">
+        <!-- Dynamic form fields injected here -->
+      </div>
+      <div class="deportes-modal-footer">
+        <button class="deportes-modal-btn deportes-modal-btn-cancel" id="deportesModalCancel">Cancelar</button>
+        <button class="deportes-modal-btn deportes-modal-btn-confirm" id="deportesModalConfirm">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deportes Confirm Modal (delete / success) -->
+  <div class="deportes-modal-overlay" id="deportesConfirmOverlay">
+    <div class="deportes-modal deportes-modal-sm" id="deportesConfirmModal">
+      <div class="deportes-modal-header" id="deportesConfirmHeader">
+        <h3 id="deportesConfirmTitle">Confirmar</h3>
+      </div>
+      <div class="deportes-modal-body">
+        <p id="deportesConfirmMessage"></p>
+      </div>
+      <div class="deportes-modal-footer" id="deportesConfirmFooter">
+        <!-- Buttons injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script src="image-popup.js"></script>
+  <script src="admin.js"></script>
+  <script>
+    // Initialize image popup for gallery items after they are rendered
+    // This will be called after renderGallery() in admin.js
+    window.addEventListener('DOMContentLoaded', function () {
+      // Create a MutationObserver to watch for changes in the gallery
+      const galleryGrid = document.getElementById('galleryGrid');
+
+      if (galleryGrid) {
+        const observer = new MutationObserver(function (mutations) {
+          // Re-initialize popup for gallery items whenever the gallery changes
+          setTimeout(() => {
+            if (window.imagePopup && window.imagePopup.init) {
+              window.imagePopup.init('.gallery-item', '.gallery-item-image');
+            }
+          }, 100);
+        });
+
+        observer.observe(galleryGrid, {
+          childList: true,
+          subtree: true
+        });
+
+        // Initial initialization
+        setTimeout(() => {
+          if (window.imagePopup && window.imagePopup.init) {
+            window.imagePopup.init('.gallery-item', '.gallery-item-image');
+          }
+        }, 500);
+      }
+    });
+  </script>
+</body>
+
+</html>
