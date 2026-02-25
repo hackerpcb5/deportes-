@@ -13,7 +13,7 @@
   <script src="js/auth-jwt.js"></script>
 </head>
 
-<body>
+<body class="admin-panel">
   <script>
     // Proteger página de admin con JWT
     (async function () {
@@ -23,6 +23,76 @@
       }
     })();
   </script>
+
+  <!-- Dark Mode Toggle Button -->
+  <button id="themeToggleBtn" class="theme-toggle-floating" title="Cambiar modo">
+    <span class="theme-icon">🌙</span>
+  </button>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const themeToggleBtn = document.getElementById('themeToggleBtn');
+      if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', function() {
+          if (document.body.classList.contains('dark-mode')) {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+          } else {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+          }
+          updateThemeIcon();
+        });
+        
+        // Update icon based on current theme
+        updateThemeIcon();
+      }
+      
+      function updateThemeIcon() {
+        const icon = document.querySelector('.theme-icon');
+        if (icon) {
+          if (document.body.classList.contains('dark-mode')) {
+            icon.textContent = '☀️';
+          } else {
+            icon.textContent = '🌙';
+          }
+        }
+      }
+    });
+  </script>
+
+  <style>
+    /* Floating Theme Toggle Button */
+    .theme-toggle-floating {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--gradient-1, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+      z-index: 9999;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-toggle-floating:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+    }
+
+    body.dark-mode .theme-toggle-floating {
+      background: var(--gradient-1);
+      box-shadow: 0 4px 20px rgba(74, 158, 221, 0.4);
+    }
+  </style>
 
   <div class="admin-container">
     <!-- Sidebar -->
